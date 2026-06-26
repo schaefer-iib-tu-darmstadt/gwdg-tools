@@ -18,4 +18,6 @@ def create_client() -> OpenAI:
     # Treat an empty GWDG_BASE_URL (e.g. CI sets it from an unset repo var, or a
     # blank line in .env) as unset, so the default applies instead of "".
     base_url = os.environ.get("GWDG_BASE_URL") or DEFAULT_BASE_URL
-    return OpenAI(api_key=api_key, base_url=base_url)
+    # max_retries=0: probes.py does its own single 429 retry. The SDK default (2)
+    # would re-issue timed-out calls, tripling a slow model's wait (3x timeout).
+    return OpenAI(api_key=api_key, base_url=base_url, max_retries=0)

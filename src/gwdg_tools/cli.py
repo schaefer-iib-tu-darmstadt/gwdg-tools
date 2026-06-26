@@ -51,7 +51,7 @@ def cmd_probe(args):
             flush=True,
         )
 
-    rows, headers = probes.list_models_with_meta(client)
+    rows = probes.list_models(client)
     catalog = {m["id"]: m for m in rows}
     results = probes.probe_catalog(
         client, timeout=args.timeout, sleep=args.sleep, max_tokens=args.max_tokens,
@@ -66,10 +66,9 @@ def cmd_probe(args):
             print(f"  {e.id:34s} {lat:>7s}  dim={e.dim or '-'}  {e.err or 'OK'}", flush=True)
         embeddings = probes.probe_embeddings(client, timeout=args.timeout, on_result=show_e)
 
-    snap = probes.ratelimit_snapshot(headers)
     if not args.no_write:
         text = render.render_status_md(results, _base_url(client), args.timeout,
-                                       embeddings=embeddings, ratelimit=snap)
+                                       embeddings=embeddings)
         _write(args.out, text, len(results))
 
 

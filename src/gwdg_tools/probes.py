@@ -69,29 +69,6 @@ def list_models(client) -> list[ModelInfo]:
     return rows
 
 
-# Models that reason INLINE in `content` (no separate reasoning_content channel;
-# not live-detectable on this endpoint). Hand-maintained; revisit when GWDG changes
-# the catalog. Models that declare `thought` in `output` are detected live by
-# reasoning_kind and need not be listed here. Unknown models default to "n".
-KNOWN_INLINE_REASONING = {
-    "glm-4.7",
-    "openai-gpt-oss-120b",
-    "gemma-4-31b-it",
-    "qwen3.6-35b-a3b",
-    "qwen3.5-122b-a10b",
-    "internvl3.5-30b-a3b",
-}
-
-
-def reasoning_kind(m: ModelInfo) -> str:
-    """'separat' (live thought channel) | 'inline' (curated) | 'n' (neither)."""
-    if "thought" in (m.get("output") or []):
-        return "separat"
-    if m.get("id") in KNOWN_INLINE_REASONING:
-        return "inline"
-    return "n"
-
-
 def modalities(m: ModelInfo) -> str:
     return ", ".join(m.get("input") or [])
 
@@ -172,7 +149,9 @@ def probe_catalog(client, timeout=600, sleep=0.0, max_tokens=None, models=None,
         info = catalog.get(mid, {})
         res.demand = info.get("demand")
         res.status = info.get("status", "")
-        if tools:
+        # Skip the tool probe if the sanity call already failed: the model is down,
+        # and a second long call would just double the timeout wait.
+        if tools and not res.err:
             res.tools = probe_tool_call(client, mid, timeout=timeout)
         results.append(res)
         if on_result:

@@ -15,8 +15,8 @@ die Probes programmatisch brauchen (siehe [Nutzung in anderen Projekten](#nutzun
 
 ## Generierte Reports
 
-- [`docs/gwdg_models.md`](docs/gwdg_models.md) — aktueller Modell-Katalog (ID, Anbieter, Datum)
-- [`docs/gwdg_status.md`](docs/gwdg_status.md) — Latenz / finish / Reasoning / Verfügbarkeit pro Modell
+- [`docs/gwdg_models.md`](docs/gwdg_models.md) — aktueller Modell-Katalog (ID, Name, Modalitäten)
+- [`docs/gwdg_status.md`](docs/gwdg_status.md) — Latenz / Auslastung / Tool-Calling / Verfügbarkeit pro Modell
 
 ## GWDG-Doku (manuell nachschlagen)
 
