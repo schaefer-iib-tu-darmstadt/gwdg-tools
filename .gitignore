@@ -17,3 +17,5 @@ dist/
 # Local-only docs (not published)
 CLAUDE.md
 NEXT_STEPS.md
+docs/superpowers/
+.superpowers/

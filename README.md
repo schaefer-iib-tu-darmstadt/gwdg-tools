@@ -18,6 +18,13 @@ die Probes programmatisch brauchen (siehe [Nutzung in anderen Projekten](#nutzun
 - [`docs/gwdg_models.md`](docs/gwdg_models.md) — aktueller Modell-Katalog (ID, Anbieter, Datum)
 - [`docs/gwdg_status.md`](docs/gwdg_status.md) — Latenz / finish / Reasoning / Verfügbarkeit pro Modell
 
+## GWDG-Doku (manuell nachschlagen)
+
+Die offiziellen GWDG-Seiten (oft veraltet, daher nur als Referenz):
+
+- API-Übersicht / Endpoints: <https://docs.hpc.gwdg.de/services/ai-services/saia/index.html>
+- Modell-Liste / Eigenschaften: <https://docs.hpc.gwdg.de/services/ai-services/chat-ai/models/index.html>
+
 ## Setup
 
 ```bash
@@ -35,11 +42,12 @@ uv run gwdg health  --models gemma-3-27b-it --n 8              # Fehlerrate übe
 ```
 
 Nützliche Flags: `--no-write` (nur Ausgabe, keine MD), `--models a,b,c` (Subset),
-`--timeout`, `--sleep` (Pause zwischen Modellen, Rate-Limit-schonend; Default 3 s),
+`--timeout`, `--sleep` (zusätzliche Pause zwischen Modellen; Limiter taktet schon, Default 0),
 `--out PATH` (Ziel-MD).
 
-> **Rate-Limit:** Die GWDG-API drosselt (~15 req/min). `probe` läuft default mit
-> `--sleep 3` über den ganzen Katalog — nicht aggressiv im Loop aufrufen.
+> **Rate-Limit:** Server erlaubt **60/min** (2/s). `gwdg-tools` drosselt sich selbst
+> auf **15/min während 07:00-19:00 Europe/Berlin** (sonst 60/min) via eingebautem
+> Rate-Limiter — Fenster-Zeitzone per `GWDG_RATE_TZ` überschreibbar.
 
 ## Auto-Refresh (GitHub Actions)
 

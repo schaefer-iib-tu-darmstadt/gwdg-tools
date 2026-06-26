@@ -27,7 +27,8 @@ def cmd_models(args):
     rows = probes.list_models(client)
     print(f"{len(rows)} Modelle im GWDG-Katalog:")
     for r in rows:
-        print(f"  {r['id']}")
+        cap = ",".join(r.get("input") or [])
+        print(f"  {r['id']:36s} [{cap}]")
     if not args.no_write:
         _write(args.out, render.render_models_md(rows, _base_url(client)), len(rows))
 
@@ -36,24 +37,40 @@ def cmd_probe(args):
     client = create_client()
     models = _split_models(args.models)
     print(f"Probe (timeout={args.timeout}s, sleep={args.sleep}s) ...\n")
-    hdr = f"{'model':36s} {'lat':>7s} {'finish':>8s} {'rea':>3s} {'out':>4s}  sanity"
+    hdr = f"{'model':36s} {'lat':>7s} {'finish':>8s} {'rea':>3s} {'dmd':>3s} {'status':>6s}  sanity"
     print(hdr)
     print("-" * len(hdr))
 
     def show(res):
         lat = f"{res.lat:.1f}s" if res.lat is not None else "-"
         tail = res.err if res.err else res.sane
+        dmd = "" if res.demand is None else str(res.demand)
         print(
             f"{res.id:36s} {lat:>7s} {res.finish:>8s} "
-            f"{'Y' if res.reasoning else 'n':>3s} {res.out_len:>4d}  {tail}",
+            f"{'Y' if res.reasoning else 'n':>3s} {dmd:>3s} {res.status:>6s}  {tail}",
             flush=True,
         )
 
+    rows, headers = probes.list_models_with_meta(client)
+    catalog = {m["id"]: m for m in rows}
     results = probes.probe_catalog(
-        client, timeout=args.timeout, sleep=args.sleep, max_tokens=args.max_tokens, models=models, on_result=show
+        client, timeout=args.timeout, sleep=args.sleep, max_tokens=args.max_tokens,
+        models=models, on_result=show, catalog=catalog,
     )
+
+    embeddings = None
+    if not args.no_embeddings:
+        print("\nEmbeddings:")
+        def show_e(e):
+            lat = f"{e.lat:.1f}s" if e.lat is not None else "-"
+            print(f"  {e.id:34s} {lat:>7s}  dim={e.dim or '-'}  {e.err or 'OK'}", flush=True)
+        embeddings = probes.probe_embeddings(client, timeout=args.timeout, on_result=show_e)
+
+    snap = probes.ratelimit_snapshot(headers)
     if not args.no_write:
-        _write(args.out, render.render_status_md(results, _base_url(client), args.timeout), len(results))
+        text = render.render_status_md(results, _base_url(client), args.timeout,
+                                       embeddings=embeddings, ratelimit=snap)
+        _write(args.out, text, len(results))
 
 
 def cmd_latency(args):
@@ -93,7 +110,8 @@ def build_parser() -> argparse.ArgumentParser:
     pr = sub.add_parser("probe", help="One representative call per model -> status Markdown.")
     pr.add_argument("--out", default="docs/gwdg_status.md")
     pr.add_argument("--timeout", type=int, default=600)
-    pr.add_argument("--sleep", type=float, default=3.0, help="Pause between models (rate-limit friendly).")
+    pr.add_argument("--sleep", type=float, default=0.0, help="Extra pause between models (limiter already paces; default 0).")
+    pr.add_argument("--no-embeddings", action="store_true", help="Skip the embedding-model probes.")
     pr.add_argument("--max-tokens", type=int, default=None)
     pr.add_argument("--models", default=None, help="Comma-separated subset (default: whole catalog).")
     pr.add_argument("--no-write", action="store_true")
