@@ -15,5 +15,7 @@ def create_client() -> OpenAI:
         raise RuntimeError(
             "GWDG_API_KEY not set. Export it or put it in a .env file (see .env.example)."
         )
-    base_url = os.environ.get("GWDG_BASE_URL", DEFAULT_BASE_URL)
+    # Treat an empty GWDG_BASE_URL (e.g. CI sets it from an unset repo var, or a
+    # blank line in .env) as unset, so the default applies instead of "".
+    base_url = os.environ.get("GWDG_BASE_URL") or DEFAULT_BASE_URL
     return OpenAI(api_key=api_key, base_url=base_url)
