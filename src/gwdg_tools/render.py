@@ -1,7 +1,10 @@
 """Render probe results into the Markdown reports under docs/."""
 from datetime import datetime, timezone
 
-from .probes import EMBEDDING_MODELS, is_reasoning
+from .probes import EMBEDDING_MODELS, reasoning_kind
+
+# Maps reasoning_kind() -> the models.md cell label.
+_REA_CELL = {"separat": "Y (separat)", "inline": "Y (inline)", "n": "n"}
 
 
 def _now() -> str:
@@ -22,14 +25,16 @@ def render_models_md(rows: list[dict], base_url: str) -> str:
     for r in rows:
         eingang = ", ".join(r.get("input") or [])
         ausgang = ", ".join(r.get("output") or [])
-        rea = "Y" if is_reasoning(r) else "n"
+        rea = _REA_CELL[reasoning_kind(r)]
         lines.append(f"| `{r['id']}` | {r.get('name', '')} | {eingang} | {ausgang} | {rea} |")
     lines += [
         "",
         "_Eingang/Ausgang = Modalitäten (text/image/audio/video). "
-        "Reasoning Y = Modell kann einen Denk-Stream (`thought`) ausgeben "
-        "(deklarierte Fähigkeit laut Katalog; ob er pro Antwort wirklich auftritt, "
-        "zeigt der Live-Probe in `gwdg_status.md`)._",
+        "Reasoning `Y (separat)` = Modell liefert seinen Denkprozess als eigenes "
+        "`reasoning_content`-Feld (live aus dem Katalog erkannt, `output: thought`). "
+        "`Y (inline)` = bekanntes Reasoning-Modell, das im Fließtext denkt "
+        "(kuratierte Liste — auf diesem Endpoint nicht live erkennbar). "
+        "`n` = kein Reasoning-Modell._",
         "",
         "## Embedding-Modelle",
         "",
@@ -59,16 +64,16 @@ def render_status_md(results, base_url: str, timeout: int, embeddings=None, rate
         f"> Quelle: `{base_url}` · eine neutrale Sanity-Anfrage (kalt) pro Modell.",
         f"> Timeout {timeout}s. Latenz = eine Anfrage, kalt (kein Mittelwert).",
         "",
-        "| Modell | Latenz | finish | Denk-Stream | demand | status | Sanity |",
-        "|---|--:|---|:--:|--:|:--:|:--:|",
+        "| Modell | Latenz | finish | demand | status | Tools | Sanity |",
+        "|---|--:|---|--:|:--:|:--:|:--:|",
     ]
     for r in results:
         lat = f"{r.lat:.1f}s" if r.lat is not None else "-"
         demand = "" if r.demand is None else str(r.demand)
         sane = r.sane + (f" — {r.err}" if r.err else "")
         lines.append(
-            f"| `{r.id}` | {lat} | {r.finish} | {'Y' if r.reasoning else 'n'} | "
-            f"{demand} | {r.status} | {sane} |"
+            f"| `{r.id}` | {lat} | {r.finish} | "
+            f"{demand} | {r.status} | {r.tools} | {sane} |"
         )
     if embeddings:
         lines += [
@@ -86,11 +91,11 @@ def render_status_md(results, base_url: str, timeout: int, embeddings=None, rate
     lines += [
         "",
         "**Legende:** `demand` = Auslastung beim Katalog-Abruf zu Probe-Beginn (Snapshot; "
-        "höher = stärker ausgelastet; Skala von GWDG nicht dokumentiert). `Denk-Stream` Y "
-        "= bei dieser knappen Sanity-Anfrage tatsächlich ein Reasoning-Stream beobachtet "
-        "(variiert je Prompt; deklarierte Fähigkeit siehe `gwdg_models.md`). Sanity `OK` = "
-        "korrekte Ein-Wort-Antwort (Paris), `WRONG` = unerwartet, `ERR` = Fehler/Timeout. "
-        "Hohe Latenz / `ERR` ⇒ überlastet oder down.",
+        "höher = stärker ausgelastet; Skala von GWDG nicht dokumentiert). Reasoning-Fähigkeit "
+        "siehe `gwdg_models.md`. `Tools` Y = Modell löste bei einem Test-Tool (`get_weather`) "
+        "einen `tool_call` aus (`finish_reason=tool_calls`); `n` = direkt geantwortet; "
+        "`ERR` = Fehler. Sanity `OK` = korrekte Ein-Wort-Antwort (Paris), `WRONG` = "
+        "unerwartet, `ERR` = Fehler/Timeout. Hohe Latenz / `ERR` ⇒ überlastet oder down.",
     ]
     footer = _ratelimit_footer(ratelimit) if ratelimit else ""
     if footer:

@@ -69,8 +69,27 @@ def list_models(client) -> list[ModelInfo]:
     return rows
 
 
-def is_reasoning(m: ModelInfo) -> bool:
-    return "thought" in (m.get("output") or [])
+# Models that reason INLINE in `content` (no separate reasoning_content channel;
+# not live-detectable on this endpoint). Hand-maintained; revisit when GWDG changes
+# the catalog. Models that declare `thought` in `output` are detected live by
+# reasoning_kind and need not be listed here. Unknown models default to "n".
+KNOWN_INLINE_REASONING = {
+    "glm-4.7",
+    "openai-gpt-oss-120b",
+    "gemma-4-31b-it",
+    "qwen3.6-35b-a3b",
+    "qwen3.5-122b-a10b",
+    "internvl3.5-30b-a3b",
+}
+
+
+def reasoning_kind(m: ModelInfo) -> str:
+    """'separat' (live thought channel) | 'inline' (curated) | 'n' (neither)."""
+    if "thought" in (m.get("output") or []):
+        return "separat"
+    if m.get("id") in KNOWN_INLINE_REASONING:
+        return "inline"
+    return "n"
 
 
 def modalities(m: ModelInfo) -> str:
@@ -102,6 +121,7 @@ class ProbeResult:
     err: str = ""
     demand: int | None = None
     status: str = ""
+    tools: str = ""  # Y / n / ERR
 
 
 def _sanity(text: str) -> str:
@@ -138,8 +158,11 @@ def probe_model(client: OpenAI, model_id: str, timeout: int = 600, max_tokens: i
 
 
 def probe_catalog(client, timeout=600, sleep=0.0, max_tokens=None, models=None,
-                  on_result=None, catalog=None):
-    """Probe every model (or a subset) once; sleep is courtesy spacing between calls."""
+                  on_result=None, catalog=None, tools=False):
+    """Probe every model (or a subset) once; sleep is courtesy spacing between calls.
+
+    tools=True adds one extra tool-calling probe per model (sets ProbeResult.tools).
+    """
     if catalog is None:
         catalog = {m["id"]: m for m in list_models(client)}
     ids = models or list(catalog.keys())
@@ -149,6 +172,8 @@ def probe_catalog(client, timeout=600, sleep=0.0, max_tokens=None, models=None,
         info = catalog.get(mid, {})
         res.demand = info.get("demand")
         res.status = info.get("status", "")
+        if tools:
+            res.tools = probe_tool_call(client, mid, timeout=timeout)
         results.append(res)
         if on_result:
             on_result(res)
@@ -197,6 +222,35 @@ EMBEDDING_MODELS = [
     "qwen3-embedding-4b",
 ]
 EMBED_INPUT = "Hauptstadt von Frankreich"
+
+
+TOOL_PROBE = [{
+    "type": "function",
+    "function": {
+        "name": "get_weather",
+        "description": "Get the current weather for a city",
+        "parameters": {
+            "type": "object",
+            "properties": {"city": {"type": "string"}},
+            "required": ["city"],
+        },
+    },
+}]
+TOOL_PROBE_PROMPT = "What's the weather in Paris right now?"
+
+
+def probe_tool_call(client, model_id: str, timeout: int = 60) -> str:
+    """'Y' if the model emits a tool_call for a simple tool, 'n' if it answers
+    directly, 'ERR' on failure."""
+    try:
+        r = _guarded(lambda: client.chat.completions.create(
+            model=model_id,
+            messages=[{"role": "user", "content": TOOL_PROBE_PROMPT}],
+            tools=TOOL_PROBE, tool_choice="auto", timeout=timeout))
+        ch = r.choices[0]
+        return "Y" if (ch.finish_reason == "tool_calls" or ch.message.tool_calls) else "n"
+    except Exception:  # noqa: BLE001 - any failure = unknown/unsupported
+        return "ERR"
 
 
 @dataclass
