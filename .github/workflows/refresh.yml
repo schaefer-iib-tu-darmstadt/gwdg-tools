@@ -1,0 +1,50 @@
+name: refresh-gwdg-docs
+
+# Weekly (and on-demand) refresh of the GWDG model catalog + status/latency probe.
+# Requires repo secret GWDG_API_KEY. Optional repo variable GWDG_BASE_URL.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"   # Mondays 06:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+
+      - name: Sync deps
+        run: uv sync
+
+      - name: Refresh model catalog
+        env:
+          GWDG_API_KEY: ${{ secrets.GWDG_API_KEY }}
+          GWDG_BASE_URL: ${{ vars.GWDG_BASE_URL }}
+        run: uv run gwdg models
+
+      - name: Refresh status / latency probe
+        env:
+          GWDG_API_KEY: ${{ secrets.GWDG_API_KEY }}
+          GWDG_BASE_URL: ${{ vars.GWDG_BASE_URL }}
+        run: uv run gwdg probe --timeout 600 --sleep 3
+
+      - name: Commit refreshed docs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/gwdg_models.md docs/gwdg_status.md
+          if git diff --cached --quiet; then
+            echo "No changes."
+          else
+            git commit -m "docs: refresh GWDG catalog + status probe"
+            git push
+          fi
