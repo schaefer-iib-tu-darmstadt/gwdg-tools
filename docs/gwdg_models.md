@@ -1,6 +1,6 @@
 # GWDG Chat-AI — verfügbare Modelle
 
-> Auto-generiert von `gwdg models` (gwdg-tools) — Stand **2026-06-26 17:35 UTC**.
+> Auto-generiert von `gwdg models` (gwdg-tools) — Stand **2026-06-29 11:03 UTC**.
 > Quelle: `https://chat-ai.academiccloud.de/v1/models` (OpenAI-kompatibler Endpoint).
 > Aktuell **17 Chat-Modelle** im Live-Katalog.
 
