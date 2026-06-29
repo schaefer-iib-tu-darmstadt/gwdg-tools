@@ -73,15 +73,34 @@ def modalities(m: ModelInfo) -> str:
     return ", ".join(m.get("input") or [])
 
 
+# Windows the server reports via x-ratelimit-*-{window} headers, tightest first.
+RATELIMIT_WINDOWS = ("second", "minute", "hour", "day", "month")
+
+
 def ratelimit_snapshot(headers) -> dict:
-    """Extract remaining/limit per window from x-ratelimit-* response headers."""
+    """Extract (remaining, limit) per window from x-ratelimit-* response headers.
+
+    Returns an ordered dict keyed by window (tightest first); windows the server
+    does not report are omitted. These numbers are account-specific -- callers
+    must keep them out of any committed file (see CLAUDE.md / repo is public).
+    """
     snap = {}
-    for k in ("minute", "hour", "day"):
+    for k in RATELIMIT_WINDOWS:
         rem = headers.get(f"x-ratelimit-remaining-{k}")
         lim = headers.get(f"x-ratelimit-limit-{k}")
         if rem is not None and lim is not None:
             snap[k] = (str(rem), str(lim))
     return snap
+
+
+def get_ratelimit(client) -> dict:
+    """Read the account's live rate limits via one cheap /v1/models call.
+
+    Returns the ratelimit_snapshot dict. Uses the shared limiter/429 retry like
+    every other probe. Account-specific -- print only, never write to docs/.
+    """
+    raw = _guarded(lambda: client.models.with_raw_response.list())
+    return ratelimit_snapshot(raw.headers)
 
 
 @dataclass

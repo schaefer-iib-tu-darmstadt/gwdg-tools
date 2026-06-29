@@ -85,6 +85,22 @@ def cmd_latency(args):
     probes.latency(client, models, timeout=args.timeout, max_tokens=args.max_tokens, on_result=show)
 
 
+def cmd_limits(args):
+    """Print the account's live rate limits. Print-only on purpose: these numbers
+    are account-specific and must never land in a committed file (repo is public)."""
+    client = create_client()
+    snap = probes.get_ratelimit(client)
+    if not snap:
+        print("Keine x-ratelimit-* Header in der Antwort -- Endpoint liefert keine Limits.")
+        return
+    print("\nRate-Limits (live, dieser Account):\n")
+    print(f"  {'window':6s} {'remaining':>12s} / {'limit':<12s}")
+    print("  " + "-" * 33)
+    for window, (rem, lim) in snap.items():
+        print(f"  {window:6s} {rem:>12s} / {lim:<12s}")
+    print("\nHinweis: nicht committen -- Account-spezifisch.")
+
+
 def cmd_health(args):
     client = create_client()
     models = _split_models(args.models) or [r["id"] for r in probes.list_models(client)]
@@ -128,6 +144,9 @@ def build_parser() -> argparse.ArgumentParser:
     he.add_argument("--n", type=int, default=8)
     he.add_argument("--timeout", type=int, default=60)
     he.set_defaults(func=cmd_health)
+
+    li = sub.add_parser("limits", help="Show this account's live rate limits (print only).")
+    li.set_defaults(func=cmd_limits)
     return p
 
 
