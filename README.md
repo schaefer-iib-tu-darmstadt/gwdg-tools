@@ -45,10 +45,6 @@ Nützliche Flags: `--no-write` (nur Ausgabe, keine MD), `--models a,b,c` (Subset
 `--timeout`, `--sleep` (zusätzliche Pause zwischen Modellen; Limiter taktet schon, Default 0),
 `--out PATH` (Ziel-MD).
 
-> **Rate-Limit:** Server erlaubt **60/min** (2/s). `gwdg-tools` drosselt sich selbst
-> auf **15/min während 07:00-19:00 Europe/Berlin** (sonst 60/min) via eingebautem
-> Rate-Limiter — Fenster-Zeitzone per `GWDG_RATE_TZ` überschreibbar.
-
 ## Auto-Refresh (GitHub Actions)
 
 `.github/workflows/refresh.yml` läuft wöchentlich (+ manuell via *Run workflow*),
