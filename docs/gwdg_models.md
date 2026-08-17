@@ -1,13 +1,13 @@
 # GWDG Chat-AI — verfügbare Modelle
 
-> Auto-generiert von `gwdg models` (gwdg-tools) — Stand **2026-08-10 07:43 UTC**.
+> Auto-generiert von `gwdg models` (gwdg-tools) — Stand **2026-08-17 06:56 UTC**.
 > Quelle: `https://chat-ai.academiccloud.de/v1/models` (OpenAI-kompatibler Endpoint).
 > Aktuell **16 Chat-Modelle** im Live-Katalog.
 
 | Modell-ID | Name | Eingang | Ausgang |
 |---|---|---|---|
 | `apertus-70b-instruct-2509` | Apertus 70B Instruct 2509 | text | text |
-| `deepseek-v4-flash` | DeepSeek V4 Flash | text | text |
+| `deepseek-v4-flash-0731` | DeepSeek V4 Flash 0731 | text | text |
 | `devstral-2-123b-instruct-2512` | Devstral 2 123B Instruct 2512 | text | text |
 | `gemma-4-31b-it` | Gemma 4 31B Instruct | text, image | text |
 | `glm-4.7` | GLM-4.7 | text | text |
