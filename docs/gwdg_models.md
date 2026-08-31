@@ -1,8 +1,8 @@
 # GWDG Chat-AI — verfügbare Modelle
 
-> Auto-generiert von `gwdg models` (gwdg-tools) — Stand **2026-08-24 06:59 UTC**.
+> Auto-generiert von `gwdg models` (gwdg-tools) — Stand **2026-08-31 12:57 UTC**.
 > Quelle: `https://chat-ai.academiccloud.de/v1/models` (OpenAI-kompatibler Endpoint).
-> Aktuell **16 Chat-Modelle** im Live-Katalog.
+> Aktuell **15 Chat-Modelle** im Live-Katalog.
 
 | Modell-ID | Name | Eingang | Ausgang |
 |---|---|---|---|
@@ -10,8 +10,7 @@
 | `deepseek-v4-flash-0731` | DeepSeek V4 Flash 0731 | text | text |
 | `devstral-2-123b-instruct-2512` | Devstral 2 123B Instruct 2512 | text | text |
 | `gemma-4-31b-it` | Gemma 4 31B Instruct | text, image | text |
-| `glm-4.7` | GLM-4.7 | text | text |
-| `medgemma-27b-it` | MedGemma 27B Instruct | text, image | text |
+| `glm-4.7` | GLM 4.7 | text | text |
 | `meta-llama-3.1-8b-instruct` | Meta Llama 3.1 8B Instruct | text | text |
 | `mistral-medium-3.5-128b` | Mistral Medium 3.5 128B | text | text |
 | `openai-gpt-oss-120b` | OpenAI GPT OSS 120B | text | text |
@@ -20,8 +19,8 @@
 | `qwen3-omni-30b-a3b-instruct` | Qwen 3 Omni 30B A3B Instruct | text, image, audio | text |
 | `qwen3.5-122b-a10b` | Qwen 3.5 122B A10B | text, image | text, thought |
 | `qwen3.5-397b-a17b` | Qwen 3.5 397B A17B | text, image | text, thought |
-| `qwen3.6-27b` | Qwen 3.6 27B | text | text |
 | `qwen3.6-35b-a3b` | Qwen 3.6 35B A3B | text, image | text |
+| `qwen3.8-27b` | Qwen 3.8 27B | text | text |
 
 _Eingang/Ausgang = Modalitäten (text, image, audio, video, thought). `thought` im Ausgang = Modell liefert seinen Denkprozess als separates `reasoning_content`-Feld._
 
