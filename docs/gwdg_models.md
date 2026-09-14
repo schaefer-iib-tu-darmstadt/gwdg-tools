@@ -1,8 +1,8 @@
 # GWDG Chat-AI — verfügbare Modelle
 
-> Auto-generiert von `gwdg models` (gwdg-tools) — Stand **2026-09-07 11:48 UTC**.
+> Auto-generiert von `gwdg models` (gwdg-tools) — Stand **2026-09-14 12:03 UTC**.
 > Quelle: `https://chat-ai.academiccloud.de/v1/models` (OpenAI-kompatibler Endpoint).
-> Aktuell **15 Chat-Modelle** im Live-Katalog.
+> Aktuell **16 Chat-Modelle** im Live-Katalog.
 
 | Modell-ID | Name | Eingang | Ausgang |
 |---|---|---|---|
@@ -11,6 +11,7 @@
 | `devstral-2-123b-instruct-2512` | Devstral 2 123B Instruct 2512 | text | text |
 | `gemma-4-31b-it` | Gemma 4 31B Instruct | text, image | text |
 | `glm-4.7` | GLM 4.7 | text | text |
+| `glm-5.3-flash` | GLM 5.3 Flash | text, image, video | text |
 | `meta-llama-3.1-8b-instruct` | Meta Llama 3.1 8B Instruct | text | text |
 | `mistral-medium-3.5-128b` | Mistral Medium 3.5 128B | text | text |
 | `openai-gpt-oss-120b` | OpenAI GPT OSS 120B | text | text |
