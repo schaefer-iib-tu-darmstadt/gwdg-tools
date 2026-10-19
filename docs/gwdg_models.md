@@ -1,19 +1,15 @@
 # GWDG Chat-AI — verfügbare Modelle
 
-> Auto-generiert von `gwdg models` (gwdg-tools) — Stand **2026-10-12 14:40 UTC**.
+> Auto-generiert von `gwdg models` (gwdg-tools) — Stand **2026-10-19 12:24 UTC**.
 > Quelle: `https://chat-ai.academiccloud.de/v1/models` (OpenAI-kompatibler Endpoint).
-> Aktuell **14 Chat-Modelle** im Live-Katalog.
+> Aktuell **10 Chat-Modelle** im Live-Katalog.
 
 | Modell-ID | Name | Eingang | Ausgang |
 |---|---|---|---|
-| `apertus-70b-instruct-2509` | Apertus 70B Instruct 2509 | text | text |
 | `deepseek-v4-flash-0731` | DeepSeek V4 Flash 0731 | text | text |
-| `devstral-2-123b-instruct-2512` | Devstral 2 123B Instruct 2512 | text | text |
 | `gemma-4-31b-it` | Gemma 4 31B Instruct | text, image | text |
 | `glm-5.3-flash` | GLM 5.3 Flash | text, image, video | text |
 | `meta-llama-3.1-8b-instruct` | Meta Llama 3.1 8B Instruct | text | text |
-| `mistral-medium-3.5-128b` | Mistral Medium 3.5 128B | text | text |
-| `openai-gpt-oss-120b` | OpenAI GPT OSS 120B | text | text |
 | `qwen3-30b-a3b-instruct-2507` | Qwen 3 30B A3B Instruct 2507 | text | text |
 | `qwen3-coder-next` | Qwen 3 Coder Next | text | text |
 | `qwen3-omni-30b-a3b-instruct` | Qwen 3 Omni 30B A3B Instruct | text, image, audio | text |
