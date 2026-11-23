@@ -1,5 +1,8 @@
 # gwdg-tools
 
+> 🗄️ **Eingestellt: abgelöst durch [SAIA](https://saia.gwdg.de/).**
+> Die GWDG bietet mit **[SAIA – Scalable AI Accelerator](https://saia.gwdg.de/)** jetzt selbst ein Portal, in dem man API-Keys verwaltet, die verfügbaren Modelle samt aktueller Auslastung sieht und Anfragen in einer Sandbox ausprobiert. Dieses Repo wird nicht mehr weiterentwickelt und bleibt nur als Referenz erhalten.
+
 Kleines CLI rund um die **GWDG Chat-AI** (OpenAI-kompatible API,
 `https://chat-ai.academiccloud.de/v1`). Beantwortet die Fragen, die die offizielle
 GWDG-Doku nur veraltet/ungenau beantwortet:
